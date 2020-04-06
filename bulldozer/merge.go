@@ -126,7 +126,7 @@ func MergePR(ctx context.Context, pullCtx pull.Context, merger Merger, mergeConf
 	base, head := pullCtx.Branches()
 	mergeMethod := mergeConfig.Method
 
-	if branchMergeMethod, ok := mergeConfig.branchMethod(base); ok {
+	if branchMergeMethod, ok := mergeConfig.GetBranchMethod(base); ok {
 		mergeMethod = branchMergeMethod
 	}
 	if !isValidMergeMethod(mergeMethod) {

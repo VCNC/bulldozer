@@ -53,7 +53,7 @@ type MergeConfig struct {
 	RequiredStatuses []string `yaml:"required_statuses"`
 }
 
-func (m MergeConfig) branchMethod(branch string) (method MergeMethod, ok bool) {
+func (m MergeConfig) GetBranchMethod(branch string) (method MergeMethod, ok bool) {
 	for key, val := range m.BranchMethod {
 		regexBranch := strings.ReplaceAll(key, "*", "(.*)")
 		matcher, err := regexp.Compile(regexBranch)
