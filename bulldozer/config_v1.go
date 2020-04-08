@@ -15,7 +15,6 @@
 package bulldozer
 
 import (
-	"strings"
 	"regexp"
 )
 
@@ -55,13 +54,12 @@ type MergeConfig struct {
 
 func (m MergeConfig) GetBranchMethod(branch string) (method MergeMethod, ok bool) {
 	for key, val := range m.BranchMethod {
-		regexBranch := strings.ReplaceAll(key, "*", "(.*)")
-		matcher, err := regexp.Compile(regexBranch)
+		matcher, err := regexp.Compile(key)
 		if err != nil {
 			return "", false
 		}
 		
-		if len(matcher.FindString(branch)) > 0 {
+		if matcher.FindString(branch) == branch {
 			return val, true
 		}
 	}
