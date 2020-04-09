@@ -59,7 +59,7 @@ func (b *Base) ProcessPullRequest(ctx context.Context, pullCtx pull.Context, cli
 		logger.Debug().Msgf("Found valid configuration for %s", bulldozerConfig)
 		config := *bulldozerConfig.Config
 
-		shouldMerge, err := bulldozer.ShouldMergePR(ctx, pullCtx, config.Merge)
+		shouldMerge, err := bulldozer.ShouldMergePR(ctx, pullCtx, config.Merge, client)
 		if err != nil {
 			return errors.Wrap(err, "unable to determine merge status")
 		}

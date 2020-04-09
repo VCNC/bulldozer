@@ -68,7 +68,7 @@ func setDifference(set1, set2 []string) []string {
 }
 
 // ShouldMergePR TODO: may want to return a richer type than bool
-func ShouldMergePR(ctx context.Context, pullCtx pull.Context, mergeConfig MergeConfig) (bool, error) {
+func ShouldMergePR(ctx context.Context, pullCtx pull.Context, mergeConfig MergeConfig, client *github.Client) (bool, error) {
 	logger := zerolog.Ctx(ctx)
 
 	if mergeConfig.Blacklist.Enabled() {
@@ -114,6 +114,20 @@ func ShouldMergePR(ctx context.Context, pullCtx pull.Context, mergeConfig MergeC
 	if len(unsatisfiedStatuses) > 0 {
 		logger.Debug().Msgf("%s is deemed not mergeable because of unfulfilled status checks: [%s]", pullCtx.Locator(), strings.Join(unsatisfiedStatuses, ","))
 		return false, nil
+	}
+
+	_, head := pullCtx.Branches()
+
+	openPRs, err := pull.ListOpenPullRequests(ctx, client, pullCtx.Owner(), pullCtx.Repo())
+	if err != nil {
+		return false, err
+	}
+	for _, openPR := range openPRs {
+		formattedRef := fmt.Sprintf("refs/heads/%s", openPR.GetBase().GetRef())
+		if formattedRef == head {
+			logger.Debug().Msgf("found an opened pull request[%s] that has base ref %s", openPR.GetHead().GetRef(), ref)
+			return false, nil
+		}
 	}
 
 	// Ignore required reviews and try a merge (which may fail with a 4XX).
