@@ -68,7 +68,7 @@ func setDifference(set1, set2 []string) []string {
 }
 
 // ShouldMergePR TODO: may want to return a richer type than bool
-func ShouldMergePR(ctx context.Context, pullCtx pull.Context, mergeConfig MergeConfig, client *github.Client) (bool, error) {
+func ShouldMergePR(ctx context.Context, pullCtx pull.Context, mergeConfig MergeConfig, openPRs []*github.PullRequest) (bool, error) {
 	logger := zerolog.Ctx(ctx)
 
 	if mergeConfig.Blacklist.Enabled() {
@@ -117,11 +117,6 @@ func ShouldMergePR(ctx context.Context, pullCtx pull.Context, mergeConfig MergeC
 	}
 
 	_, head := pullCtx.Branches()
-
-	openPRs, err := pull.ListOpenPullRequests(ctx, client, pullCtx.Owner(), pullCtx.Repo())
-	if err != nil {
-		return false, err
-	}
 	for _, openPR := range openPRs {
 		formattedRef := fmt.Sprintf("refs/heads/%s", openPR.GetBase().GetRef())
 		if formattedRef == head {
