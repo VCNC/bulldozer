@@ -14,6 +14,10 @@
 
 package bulldozer
 
+import (
+	"regexp"
+)
+
 type MessageStrategy string
 type TitleStrategy string
 type MergeMethod string
@@ -46,6 +50,20 @@ type MergeConfig struct {
 	// Additional status checks that bulldozer should require
 	// (even if the branch protection settings doesn't require it)
 	RequiredStatuses []string `yaml:"required_statuses"`
+}
+
+func (m MergeConfig) GetBranchMethod(branch string) (method MergeMethod, ok bool) {
+	for key, val := range m.BranchMethod {
+		matcher, err := regexp.Compile(key)
+		if err != nil {
+			return "", false
+		}
+		
+		if matcher.FindString(branch) == branch {
+			return val, true
+		}
+	}
+	return "", false
 }
 
 type MergeOptions struct {
